@@ -1,3 +1,14 @@
+const tryAddResourcesToCache = async (resources) => {
+    const cache = await caches.open("v1");
+    for (var resource of resources){
+        try{
+            var resourceValue = await fetch(resource)
+            cache.put(resource, resourceValue)
+        } catch (error) {
+
+        }
+    }
+}
 const addResourcesToCache = async (resources) => {
     const cache = await caches.open("v1");
     await cache.addAll(resources);
@@ -51,7 +62,7 @@ const cacheFirst = async ({
   
 self.addEventListener("install", (event) => {
     event.waitUntil(
-        addResourcesToCache([
+        tryAddResourcesToCache([
         "/",
         "/index.html",
         "/american.html",
@@ -78,7 +89,6 @@ self.addEventListener("fetch", (event) => {
       cacheFirst({
         request: event.request,
         preloadResponsePromise: event.preloadResponse,
-        fallbackUrl: "/gallery/myLittleVader.jpg",
         event,
       }),
     );
