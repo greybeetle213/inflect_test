@@ -111,6 +111,7 @@ function displayAnswer(tree){
     addEventListener("resize", makeAllOnscreen)
     puzzle = {goal:goalWords}
     tree.showAnswer()
+    centerWords()
 }
 
 function beginGame(puzzleLocal){
@@ -149,6 +150,7 @@ function centerWords(){
     var centerX = html.clientWidth/2
     panAmount.x += centerX - boundsCenterX
     wordDiv.style.translate = panAmount.x + "px " + panAmount.y + "px"
+    moveAllLines()
 }
 
 function addTieBar(symbol){
@@ -1547,7 +1549,17 @@ function backToMainMenu(){
 }
 function openMainMenu(){
     if(tutorial){
-        location.reload()
+        document.getElementById("mainMenu").removeAttribute("style")
+        document.getElementById("openMobileMenuButton").removeAttribute("style")
+        document.getElementById("toolBarButtons").removeAttribute("style")
+        document.getElementById("mobileButtonBox").removeAttribute("style")
+        document.getElementById("newPuzzle").removeAttribute("style")
+        document.getElementById("tutorialButtons").style.display = "none"
+        hiddenButtonsForTutorial = []
+        tutorial = false
+        lastTutorialQuestion = false
+        answerShown = false
+        currentLevel = 1
     }
     document.getElementById("game").style.display = "none"
     document.getElementById("mainMenu").style.display = "flex"
