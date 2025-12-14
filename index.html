@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" id="html">
 <head>
-    <link rel="manifest" href="manifest.json" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, interactive-widget=overlays-content"/>
+    <link rel="manifest" href="manifest.json"/>
     <title>/ɪnflɛkt/</title>
+    <script src="load.js"></script>
     <script>america=false</script>
-    <script src="dict/filteredConjs.js"></script>
-    <script src="dict/orthToIpa.js"></script>
-    <script src="dict/ipaToOrth.js"></script>
     <script src="dict/extras.js"></script>
-    <script src="dict/orthTree.js"></script>
-    <script src="dict/ipaTree.js"></script>
-    <script src="dict/wordList.js"></script>
     <script src="borowedCode.js"></script>
     <script src="makePuzzle.js"></script>
     <script src="tutorial.js"></script>
@@ -152,7 +147,7 @@
                         <hr>
                         <button onclick="closeMobileMenu();replay()">New Puzzle</button>
                         <button onclick="openDictionary()">Open Dictionary</button>
-                        <button onclick="window.location.reload()">Back to Main Menu</button>
+                        <button onclick="backToMainMenu()">Back to Main Menu</button>
                     </div>
                 </div>
                 <hr>

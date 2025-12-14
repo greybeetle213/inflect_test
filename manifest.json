@@ -1,6 +1,6 @@
 {
-    "short_name": "inflect",
-    "name": "inflect",
+    "short_name": "/ɪnflɛkt/",
+    "name": "/ɪnflɛkt/",
     "icons": [
       {
         "src": "icons/favicon192x192.png",
@@ -17,7 +17,6 @@
     "display": "standalone",
     "display_override": [
         "standalone",
-        "fullscreen",
         "minimal-ui"
     ],
     "theme_color": "black",
