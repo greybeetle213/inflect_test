@@ -1,0 +1,575 @@
+@font-face {
+    font-family: "ipa";
+    src: url("font/DejaVuSans.ttf");
+}
+*{
+    font-family:"ipa";
+    user-select: none;
+    font-variant-ligatures: none;
+    letter-spacing: -0.05em;
+}
+body{
+    padding: 0%;
+    margin: 0%;
+    overflow: hidden;
+    overscroll-behavior-y: contain;
+}
+#goalText{
+    margin: 0.4em;
+}
+#popupMenu{
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid black;
+    width: min-content;
+}
+.joinLine{
+    padding:0px; 
+    margin:0px; 
+    background-color:black; 
+    border: 1px solid black;
+    height: 1px;
+    line-height:1px; 
+    position:absolute; 
+    z-index: -1;
+}
+.word {
+    position: absolute;
+    background-color: white;
+    border: 1px solid black;
+    text-align: center;
+    cursor: move;
+    font-size: xx-large;
+    padding: 0.05em;
+    text-wrap: nowrap;
+}
+img{
+    height: 100%;
+}
+.goalWord{
+    background-color: green;
+    color: white;
+}
+
+.ipaWord, .transcriptions{
+    letter-spacing:0.05em;
+}
+.ipaWord::before{
+    content: "/";
+}
+.ipaWord::after{
+    content: "/";
+}
+.disabled{
+    background-color: lightgrey;
+    color: black;
+}
+
+.popupBtn{
+    width: 100%;
+    text-align: left;
+    border-radius: 0%;
+    border: 2px outset grey;
+    text-wrap: nowrap;
+    font-size: x-large;
+    background-color: #f0f0f0;
+    .hoverText{
+        display: none;
+    }
+}
+.popupBtn:hover{
+    background-color: lightgray;
+    border: 2px outset gray;
+}
+.popupBtn:active{
+    border: 2px inset gray;
+}
+
+.hoverBox{
+    .hoverText{
+        display: none;
+    }
+}
+
+.completedGoal{
+    color:green;
+}
+
+#mainMenu{
+    font-size: xx-large;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: scroll;
+}
+
+#toolBar{
+    background-color: white;
+    box-shadow: 0px 3px 3px grey;
+    clip-path: inset(0px 0px -10px 0px);
+    height: min-content;
+    flex-grow: 1;
+    z-index: 1;
+    hr{
+        padding: 0%;
+        margin: 0%;
+    }
+}
+#searchResults{
+    overflow-y: scroll;
+    padding-right: 0.5em;
+}
+#guiBox{
+    position: absolute;
+    top: 0%;
+    z-index: 2;
+    font-size: xx-large;
+    width: 100%;
+    height: 100%;
+    margin: 0%;
+    padding: 0%;
+}
+.iconButton{
+    font-size: xx-large;
+    height: 1.2em;
+    width: 1.2em;
+    padding-left: 0.04em;
+    img{
+        height: 1em;
+        width: 1em;
+    }
+}
+#searchBarBox{
+    display: flex;
+    justify-content: stretch;
+    input{
+        flex-grow: 1;
+        flex-basis: 0;
+        min-width: 5%;
+        font-size: x-large;
+    }
+    /* button{
+        flex-grow: 1;
+    } */
+}
+input:focus{
+    outline: 0;
+}
+#searchFailed{
+    width: 100%;
+    text-align: center;
+    color: gray;
+    margin-top: 1em;
+}
+#mobileTopBar{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    flex-grow: 1;
+}
+@media (orientation: landscape){
+    #guiBox{
+        display: flex;
+        align-items: stretch;
+        pointer-events: none;
+    }
+    .menuButton{
+        font-size: 150%;
+    }
+    .mainMenuMultiChoice{
+        button{
+            font-size: xx-large;
+            background-color: white;
+        }
+        .disabled{
+            background-color: grey;
+        }
+        padding: 0.5em;
+    }
+    .showOnMobile{
+        display: none;
+    }
+    #toolBarContent{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        button{
+            font-size: xx-large;
+            margin: 0.2em;
+        }
+        pointer-events: all;
+    }
+    #dictionary{
+        width: 40%;
+        background-color: white;
+        height: 100%;
+        right: 0%;
+        box-shadow: -3px 3px 3px grey;
+        border: 1px solid black;
+        padding: 0.2em;
+        pointer-events: all;
+        display: flex;
+        flex-direction: column;
+    }
+    .popupBtn:hover:disabled, .hoverBox:hover{
+        .hoverText{
+            display: initial;
+            position: absolute;
+            float: right;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            transform: translateX(5em);
+        }
+    }
+    .tutorialInfo{
+        width: 20%;
+        position: absolute;
+        right: 0%;
+        background-color: white;
+        height: 100%;
+        z-index: 0;
+        border-left: 1px solid black;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: start;
+        box-shadow: 0px 3px 3px grey;
+        padding: 1em;
+        div{
+            font-size: x-large;
+        }
+        h1{
+            text-align: center;
+        }
+        overflow-y: scroll;
+    }
+    #openMobileMenuButton{
+        display: none;
+    }
+    #mobileMenu{
+        display: none;
+    }
+    #searchBarBox{
+        width: 100%;
+    }
+    .searchResult{
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid grey;
+        border-bottom: 1px solid grey;
+        h2{
+            font-size: x-large;
+            padding: 0.5em;
+            margin: 0.5em;
+        }
+    }
+    .searchHeader{
+        display: flex;
+        justify-content: space-between;
+    }
+    .searchTitle{
+        font-weight: bold;
+        text-align: center;
+    }
+    #mobileButtonBox{
+        display: none;
+    }
+    #customDificulty{
+        display: flex;
+        flex-direction: column;
+        font-size: xx-large;
+        align-items: start;
+        input{
+            font-size: xx-large;
+            height: 1em;
+            width: 2em;
+        }
+    }
+    #choices{
+        button:hover{
+            background-color: lightgray;
+        }
+    }
+    #sharePreview{
+        height: 90vh;
+    }
+}
+
+@media (orientation: portrait){
+    .menuButton{
+        font-size: 110%;
+    }
+    .mainMenuMultiChoice{
+        text-align: center;
+        button{
+            font-size: large;
+            background-color: white;
+            font-weight: bold;
+            border: 2px solid black;
+            padding: 0.05em;
+        }
+        .disabled{
+            border: 2px solid black;
+            background-color: grey;
+            font-weight: normal;
+        }
+        padding: 0em;
+    }
+    .showOnMobile{
+        display: initial;
+    }
+    #toolBarContent{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        pointer-events: all;
+    }
+    #toolBarButtons{
+        display: none;
+    }
+    #openMobileMenuButton, #closeMobileMenuButton{
+        margin: 0.1em;
+        margin-left: 0%;
+    }
+    #mobileReplayButton{
+        margin: 0.1em;
+        margin-right: 0%;
+    }
+    #goalText{
+        font-size: x-large;
+    }
+    .popupBtn:hover:disabled, .hoverBox:hover{
+        .hoverText{
+            display: initial;
+            position: absolute;
+            float: left;
+            text-wrap: wrap;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            transform: translateX(2em);
+        }
+    }
+    .tutorialInfo{
+        width: 100%;
+        position: absolute;
+        bottom: 0%;
+        background-color: white;
+        height: 30%;
+        z-index: 0;
+        border-top: 1px solid black;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: start;
+        box-shadow: 0px -3px 3px grey; /*changed in js*/
+        padding: 0.5em;
+        div{
+            font-size: large;
+            padding-right: 0.5em;
+        }
+        h1{
+            text-align: center;
+            font-size: x-large;
+            margin-top: 0%;
+        }
+        overflow-y: scroll;
+    }
+    .spacer{
+        display: none;
+    }
+    #mobileMenu{
+        width: 100%;
+        background-color: white;
+        top: 0%;
+        display: flex;
+        flex-direction: column;
+        button{
+            font-size: xx-large;
+            margin: 0.2em;
+            margin-top: 0.1em;
+            margin-bottom: 0.1em;
+        }
+    }
+    #dictionary{
+        width: 100%;
+        overflow: hidden;
+        position: absolute;
+        background-color: white;
+        height: 100%;
+        top: 0%;
+        right: 0%;
+        box-shadow: -3px 3px 3px grey;
+        border: 1px solid black;
+        padding: 0%;
+        padding-top: 0.2em;
+        pointer-events: all;
+        display: flex;
+        flex-direction: column;
+    }
+    #searchResults{
+        overflow-y: scroll;
+        overflow-x: hidden;
+        /* padding-right: 0.5em; */
+        padding-left: 0.3em;
+    }
+    #searchBarBox{
+        padding-left: 0.2em;
+        padding-right: 0.2em;
+    }
+    .searchResult{
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid grey;
+        border-bottom: 1px solid grey;
+        font-size: x-large;
+    }
+    .conjList{
+        font-size: large;
+    }
+    .searchHeader{
+        display: flex;
+        justify-content: space-between;
+    }
+    .searchTitle{
+        font-weight: bold;
+        text-align: center;
+    }
+    #guiBox{
+        overflow-y: hidden;
+        pointer-events: none;
+    }
+    #tutorialButtons{
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        button{
+            font-size: x-large;
+            flex-grow: 1;
+            margin: 0.2em;
+        }
+    }
+    #customDificulty{
+        display: flex;
+        flex-direction: column;
+        font-size: x-large;
+        align-items: start;
+        input{
+            font-size: x-large;
+            height: 1em;
+            width: 2em;
+        }
+    }
+    .numberInput{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    #sharePreview{
+        width: 100%;
+    }
+    #mobileButtonBox{
+        text-wrap: nowrap;
+    }
+}
+#shareMenu{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#shareMenuStyler{
+    background-color: white;
+    border: 2px solid black;
+    box-shadow: -3px -3px 3px grey;
+    padding: 0.25em;
+}
+#shareToolBar{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 0.25em;
+    button{
+        font-size: xx-large;
+    }
+}
+#multichoiceStyler{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border: 2px outset grey;
+    margin: 0%;
+    padding: 0.1em;
+    width: max-content;
+    max-width: 95vw;
+    button{
+        font-size: xx-large;
+    }
+    div{
+        padding: 0em;
+    }
+}
+#choices{
+    margin-bottom: 0.5em;
+    button{
+        min-width: 0.9em;
+        padding-left: 0em;
+        padding-right: 0.05em;
+        background-color: #f0f0f0;
+        border-radius: 0.1em;
+    }
+}
+.menuButton{
+    margin: 0.1em;
+}
+#game{
+    display: none;
+    overflow: hidden;
+}
+
+#tutorial{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    div{
+        width: 80%;
+        font-size: large;
+    }
+    h1{
+        text-align: center;
+    }
+    overflow-y: scroll;
+}
+.tutorialHeader{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    font-size: xx-large;
+    justify-content: center;
+    z-index: -1;
+    button{
+        width: 9em;
+        pointer-events: none;
+    }
+}
+
+#backToMenuSpan{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    button{
+        font-size: xx-large;
+    }
+}

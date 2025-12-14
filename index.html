@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" id="html">
+<head>
+    <link rel="manifest" href="manifest.json" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, interactive-widget=overlays-content"/>
+    <title>/ɪnflɛkt/</title>
+    <script>america=false</script>
+    <script src="dict/filteredConjs.js"></script>
+    <script src="dict/orthToIpa.js"></script>
+    <script src="dict/ipaToOrth.js"></script>
+    <script src="dict/extras.js"></script>
+    <script src="dict/orthTree.js"></script>
+    <script src="dict/ipaTree.js"></script>
+    <script src="dict/wordList.js"></script>
+    <script src="borowedCode.js"></script>
+    <script src="makePuzzle.js"></script>
+    <script src="tutorial.js"></script>
+    <script src="main.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel=icon href="icons/favicon.png">
+</head>
+<body onload="selectDifficulty('begginer')">
+    <div id="mainMenu">
+        <h1>/ɪnflɛkt/</h1>
+        <div id="difficultySelector" class="mainMenuMultiChoice">
+            Difficulty:
+            <br class="showOnMobile">
+            <button id="begginer" onclick="selectDifficulty('begginer')">Beginner</button>
+            <button id="easy" onclick="selectDifficulty('easy')">Easy</button>
+            <button id="medium" onclick="selectDifficulty('medium')">Medium</button>
+            <button id="hard" onclick="selectDifficulty('hard')">Hard</button>
+            <button id="custom" onclick="selectDifficulty('custom')">Custom</button>
+            <div id="customDificulty" style="display: none;">
+                <br>
+                <span class="numberInput">
+                    Starting Word Count: <input value="2" min="1" max="5" onchange="constrainInputNumber('startCountCustom')" id="startCountCustom" type="number">
+                </span>
+                <br>
+                <span class="numberInput">
+                    Goal Word Count: <input value="1" min="1" max="5" onchange="constrainInputNumber('goalCountCustom')" id="goalCountCustom" type="number">
+                </span>
+                <br>
+                <span>
+                    Steps:
+                    <button id="veryFewSteps" onclick="selectStepNum('veryFewSteps')">Very Few</button>
+                    <button id="fewSteps" onclick="selectStepNum('fewSteps')">Few</button>
+                    <button id="mediumSteps" onclick="selectStepNum('mediumSteps')">Medium</button>
+                    <button id="manySteps" onclick="selectStepNum('manySteps')">Many</button>
+                </span>
+            </div>
+        </div>
+        <div class="mainMenuMultiChoice">
+            Dialect:
+            <br class="showOnMobile">
+            <button>RP English</button>
+            <button class="disabled" onclick="window.location.href='american.html'">General American English</button>
+        </div>
+        <div>
+            <button id="playButton" class="menuButton" onclick="requestAnimationFrame(play)">Play!</button>
+            <button class="menuButton" onclick="startTutorial()">Tutorial</button>
+        </div>
+        <span id="progress"></span>
+    </div>
+    <div id="game">
+        <div id="words"></div>
+        <div id="lines"></div>
+        <div id="popupMenu">
+            <div id="standardPopupButtons">
+                <button id="toIPA" class="popupBtn" onclick="toggleIPA(popupMenuWordId)">
+                    <span class="hoverText" id="toIPAHover"></span>
+                    To IPA
+                </button>
+                <button id="toOrth" class="popupBtn" onclick="toggleIPA(popupMenuWordId)">
+                    <span class="hoverText" id="toOrthHover"></span>
+                    Spell Word
+                </button>
+                <button id="changeForm" class="popupBtn" onclick="changeForm(popupMenuWordId)">
+                    <span class="hoverText" id="changeFormHover"></span>
+                    Inflect
+                </button>
+                <button id="deleteLetter" class="popupBtn" onclick="deletePhonemeOrLetter(popupMenuWordId)">
+                    <span class="hoverText" id="deleteLetterHover"></span>
+                    Delete Letters
+                </button>
+                <button id="deletePhoneme" class="popupBtn" onclick="deletePhonemeOrLetter(popupMenuWordId)">
+                    <span class="hoverText" id="deletePhonemeHover"></span>
+                    Delete Phonemes
+                </button>
+                <button id="split" class="popupBtn" onclick="splitWord(popupMenuWordId)">
+                    <span class="hoverText" id="splitHover"></span>
+                    Split
+                </button>
+                <button id="merge" class="popupBtn" onclick="mergeMenu(popupMenuWordId)">
+                    <span class="hoverText" id="mergeHover"></span>
+                    Merge
+                </button>
+            </div>
+            <div id="customButtons">
+    
+            </div>
+            <div id="multichoice" class="canScroll popupBtnBox" style="display: none;">
+                <div id="multichoiceStyler" class="canScroll popupBtnBox">
+                    <div id="choices" class="canScroll popupBtnBox"></div>
+                    <div class="canScroll popupBtnBox">
+                        <span class="hoverBox">
+                            <span class="hoverText popupBtnBox" id="manySelectHover"></span>
+                            <button class="canScroll popupBtnBox" id="doneBtn">Done</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <button id="revert" class="popupBtn" style="color: red;" onclick="revert(popupMenuWordId);closePopupMenu()">Revert To Here</button>
+        </div>
+        <div id="guiBox">
+            <div id="toolBar">
+                <div id="toolBarContent">
+                    <span id="mobileTopBar">
+                        <div id="goalText"></div>
+                        <span id="mobileButtonBoxHidable">
+                            <span id="mobileButtonBox">
+                                <button id="mobileShareButton" onclick="openShareMenu()" style="display: none;" class="iconButton">
+                                    <img src="icons/share-box-line.svg" alt="">
+                                </button>
+                                <button id="mobileReplayButton" onclick="replay()" style="display: none;" class="iconButton">
+                                    <img src="icons/reset-left-line.svg" alt="">
+                                </button>
+                                <button id="openMobileMenuButton" class="iconButton" onclick="openMobileMenu()">
+                                    <img src="icons/menu-line.svg">
+                                </button>
+                                <button id="closeMobileMenuButton" class="iconButton" onclick="closeMobileMenu()" style="display: none;">
+                                    <img src="icons/close-large-line.svg">
+                                </button>
+                            </span>
+                        </span>
+                    </span>
+                    <div id="tutorialButtons" style="display: none;">
+                        <button onclick="displayAnswer(tree)" id="showAnswer" style="display: none;">Show Answer</button>
+                        <button id="simalarPuzzle" style="display: none;">Try Again</button>
+                        <button id="nextTutorial" style="display: none;">Next</button>
+                        <button onclick="backToMainMenu()" id="menuButtonTutorial">Main Menu</button>
+                    </div>
+                    <div id="toolBarButtons">
+                        <span id="progressNewPuzzle"></span>
+                        <button onclick="openShareMenu()" style="display: none;" id="openShareMenu">Share</button>
+                        <button onclick="replay()" id="newPuzzle">New Puzzle</button>
+                        <button onclick="openDictionary()" id="showDictionary">Dictionary</button>
+                        <!-- <button onclick="displayAnswer(tree)">Show Computer's Solution</button> -->
+                        <button onclick="backToMainMenu()" id="menuButton">Main Menu</button>
+                    </div>
+                    <div id="mobileMenu" style="display: none;">
+                        <hr>
+                        <button onclick="closeMobileMenu();replay()">New Puzzle</button>
+                        <button onclick="openDictionary()">Open Dictionary</button>
+                        <button onclick="window.location.reload()">Back to Main Menu</button>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <div id="dictionary" class="canScroll" style="display: none;">
+                <div id="searchBarBox" class="canScroll">
+                    <input type="text" placeholder="Search Word" id="dictionarySearch">
+                    <button onclick="closeDictionary();closeMobileMenu()" class="iconButton">
+                        <img src="icons/close-large-line.svg">
+                    </button>
+                </div>
+                <span id="searchFailed">
+                    Type something
+                </span>
+                <div id="searchResults" class="canScroll">
+
+                </div>
+            </div>
+        </div>
+        <div id="shareMenu" style="display: none;">
+            <div id="shareMenuStyler" class="canScroll">
+                <span id="shareToolBar" class="canScroll">
+                    <button id="copyButton" class="canScroll">Copy to Clipboard</button>
+                    <button class="iconButton" class="canScroll" onclick="document.getElementById('shareMenu').style.display='none'">
+                        <img class="canScroll" src="icons/close-large-line.svg" alt="">
+                    </button>
+                </span>
+                <div class="canScroll">
+                    <img class="canScroll" id="sharePreview" src="" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tutorialInfo1" class="tutorialInfo canScroll" style="display: none;">
+        <span style="font-size: xx-large; color: white;" class="spacer">.</span>
+        <h1>(1/9) View Controls:</h1>
+        <div class="canScroll">
+            You can move your view by clicking and dragging on the background. 
+            <br><br>
+            Zoom with the scroll wheel/by pinching.
+            <br><br>
+            You can click on words to drag them around.
+        </div>
+    </div>
+    <div id="tutorialInfo2" class="tutorialInfo canScroll" style="display: none;">
+        <span style="font-size: xx-large; color: white;" class="spacer">.</span>
+        <h1>(2/9) New Tool:</h1>
+        <span class="tutorialHeader">
+            <button class="popupBtn">
+                Delete Letters
+            </button>
+        </span>
+        <div class="canScroll">
+            Click on any word, and then select "Delete Letters". 
+            <br><br>
+            Try to make the goal word (shown in the top left)
+            <br><br>
+            If you make a mistake, click on an old word and select "Revert To Here"
+        </div>
+    </div>
+    <div id="tutorialInfo3" class="tutorialInfo canScroll" style="display: none;">
+        <span style="font-size: xx-large; color: white;" class="spacer">.</span>
+        <h1>(3/9) New Tool:</h1>
+        <span class="tutorialHeader">
+            <button class="popupBtn">
+                Inflect
+            </button>
+        </span>
+        <div class="canScroll">
+            Click on any word, and then select "Inflect". 
+            <br><br>
+            If two words would be the same entry in a dictionary (eg. think, thinks), they are probably inflectional variants.
+            <br><br>
+            Try to make the goal word (shown in the top left)
+        </div>
+    </div>
+    <div id="tutorialInfo4" class="tutorialInfo canScroll" style="display: none;">
+        <span style="font-size: xx-large; color: white;" class="spacer">.</span>
+        <h1>(4/9) Put It Together!</h1>
+        <div class="canScroll">
+            Try to make the goal word.
+        </div>
+    </div>
+    <div id="tutorialInfo5" class="tutorialInfo canScroll" style="display: none;">
+        <span style="font-size: xx-large; color: white;" class="spacer">.</span>
+        <h1>(5/9) New Tools:</h1>
+        <span class="tutorialHeader">
+            <button class="popupBtn">
+                To IPA
+            </button>
+        </span>
+        <span class="tutorialHeader">
+            <button class="popupBtn">
+                Spell Word
+            </button>
+        </span>
+        <div class="canScroll">
+            Selecting "To IPA" will let you convert a word to the International Phonetic Alphabet. This is a representation of how a word is pronounced, meaning that, for example, "two", "to" and "too" are all written /tuː/.
+            <br>
+            You can convert a word back from the IPA by selecting "Spell Word".
+            <br><br>
+            Try to make the goal word.
+        </div>
+    </div>
+    <div id="tutorialInfo6" class="tutorialInfo canScroll" style="display: none;">
+        <span style="font-size: xx-large; color: white;" class="spacer">.</span>
+        <h1>(6/9) New Tool:</h1>
+        <span class="tutorialHeader">
+            <button class="popupBtn">
+                Delete Phoneme
+            </button>
+        </span>
+        <div class="canScroll">
+            After clicking on an IPA word, you can select "Delete Phoneme". You could for example change /pɔːt/ to /ɔːt/. (Spelled out this is "port" to "ought")
+            <br><br>
+            Try to make the goal word.
+        </div>
+    </div>
+    <div id="tutorialInfo7" class="tutorialInfo canScroll" style="display: none;">
+        <span style="font-size: xx-large; color: white;" class="spacer">.</span>
+        <h1>(7/9) Rule:</h1>
+        <div class="canScroll">
+            Each word may only be on the board once.
+            <br><br>
+            Try to make the goal words!
+        </div>
+    </div>
+    <div id="tutorialInfo8" class="tutorialInfo canScroll" style="display: none;">
+        <span style="font-size: xx-large; color: white;" class="spacer">.</span>
+        <h1>(8/9) New Tool:</h1>
+        <span class="tutorialHeader">
+            <button class="popupBtn">
+                Merge
+            </button>
+        </span>
+        <div class="canScroll">
+            After selecting any word, choose "Merge" and then the word you want to merge it to from the popup menu. You can delete lots of letters before merging, so you could merge "th", and "e" to "the".
+            <br><br>
+            Try to make the goal word!
+        </div>
+    </div>
+    <div id="tutorialInfo9" class="tutorialInfo canScroll" style="display: none;">
+        <span style="font-size: xx-large; color: white;" class="spacer">.</span>
+        <h1>(9/9) New Tool:</h1>
+        <span class="tutorialHeader">
+            <button class="popupBtn">
+                Split
+            </button>
+        </span>
+        <div class="canScroll">
+            This is the last thing in the tutorial!
+            <br><br>
+            You can split a word which is in the dictionary into two words eg. "handbook" -> "hand" "book" is possible, but "bighat" -> "big" "hat" is not, because "bighat" is not a word.
+            <br><br>
+            Try to make the goal words!
+        </div>
+    </div>
+</body>
+</html>
