@@ -397,7 +397,7 @@ class wordNodeOrth{
         var options = []
         var wordList = getPossibleDeletions([...this.orth], orthTree).union(conjDict[this.orth]||new Set()).difference(this.tree.usedWordsSet)
         for(var unsplitWord of wordList){
-            word = unsplitWord.split("")
+            var word = unsplitWord.split("")
             var loopNum = word.length
             var currentStart = ""
             for(var i = 0; i < loopNum; i++){
@@ -496,7 +496,7 @@ class wordNodeIPA extends wordNodeOrth{
         var wordList = getPossibleDeletions([...this.orth], ipaTree, ",").difference(this.tree.usedWordsSet)
         for(var unsplitIpaWord of wordList){
             var currentStart = []
-            ipaWord = unsplitIpaWord.split(",")
+            var ipaWord = unsplitIpaWord.split(",")
             var loopNum = ipaWord.length
             for(var i = 0; i < loopNum; i++){
                 currentStart.push(ipaWord.shift())

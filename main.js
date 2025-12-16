@@ -1485,9 +1485,15 @@ function updateBrowserHistory(){
 }
 
 function restoreFromHistory(e){
+    if(document.getElementById("dictionary").style.display == "flex"){
+        closeDictionary()
+        addToBrowserHistory()
+        return
+    }
     restored = true
     if(e.state.mainMenu){
         openMainMenu()
+        return
     }
     if(e.state.tutorial){
         if(tutorial){
