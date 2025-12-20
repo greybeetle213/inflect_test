@@ -4,8 +4,15 @@ restored = false
 history.pushState({mainMenu:true, america:america},"")
 addEventListener("popstate", restoreFromHistory)
 
+function onBodyLoad(){
+    scaleFontAllElems()
+    if(!localStorage.getItem("notFirstLoad")){
+        initStorage()
+    }
+    loadStorage()
+}
 function play(){
-    document.getElementById("progressNewPuzzle").style.display="initial"
+    document.getElementById("progressNewPuzzle").style.display = "initial"
     document.getElementById("playButton").innerHTML = "Generating Puzzle..."
     requestAnimationFrame(playRandomPuzzle)
 }
@@ -832,10 +839,10 @@ function closePopupMenu(){
 }
 
 function closePopupMenuWhenClickedOffOf(event){
-    if(event.target.className.indexOf("popupBtn") == -1){
+    if(event.target.className.indexOf("popupBtn") == -1 && (!event.target.parentNode.className || event.target.parentNode.className.indexOf("popupBtn") == -1)){
         closePopupMenu()
     }
-    if(event.target.parentNode.id != "mobileMenu" && event.target.parentNode.id != "closeMobileMenuButton" && event.target.parentNode.id != "mobileButtonBox"){
+    if(event.target.parentNode.id != "mobileMenu" && (!event.target.parentNode.parentNode || event.target.parentNode.parentNode.id != "mobileMenu") && event.target.parentNode.id != "closeMobileMenuButton" && event.target.parentNode.id != "mobileButtonBox"){
         closeMobileMenu()
     }
 }
@@ -860,6 +867,7 @@ function makeElemOnscreen(elem){
 }
 function moveWordSoNotIntersecting(id){
     var elem = buttonDict[id].elem
+    scaleFontUnder(elem)
     var pos = getOffset(elem)
     for(var button of Object.values(buttonDict)){
         if(button.elem==elem){
@@ -907,10 +915,15 @@ function updateGoalText(){
         var index = goalText.indexOf(word.orth)
         if(index != -1){
             completedWordCount ++
-            goalText[index] = "<span class='completedGoal'>"+goalText[index]+"</span>"
+            goalText[index] = "<span class='completedGoal' onclick='searchWord(\""+goalText[index]+"\")'>"+goalText[index]+"</span>"
         }
     }
-
+    for(var i = 0; i<goalText.length; i++){
+        if(goalText[i].indexOf("<")==-1){
+            goalText[i] = "<span onclick='searchWord(\""+goalText[i]+"\")'>"+goalText[i]+"</span>"
+        }
+    }
+    console.log(goalText)
     goalPrefix = "GOAL"
     if(puzzle.goal.length > 1){
         goalPrefix += "S"
@@ -957,6 +970,7 @@ function selectDifficulty(dif){
     document.getElementById(dif).classList.remove("disabled")
     document.getElementById("customDificulty").style.display = "none"
     //settings: start words, end words, number of steps, number of puzzle to generate before picking hardest
+    localStorage.setItem("difficulty", dif)
     if(dif=="begginer"){
         puzzleSettings=["begginer",10]
     }
@@ -971,7 +985,6 @@ function selectDifficulty(dif){
     }
     if(dif=="custom"){
         document.getElementById("customDificulty").style.display = "flex"
-        selectStepNum("mediumSteps")
         puzzleSettings="custom"
     }
 }
@@ -982,6 +995,7 @@ function selectStepNum(dif){
     document.getElementById("mediumSteps").classList.add("disabled")
     document.getElementById("manySteps").classList.add("disabled")
     document.getElementById(dif).classList.remove("disabled")
+    localStorage.setItem("customStepNum", dif)
     switch(dif){
         case "veryFewSteps":
             customDiff = "easy"
@@ -1010,8 +1024,8 @@ function getDifferanceBetweenPoints(x1,y1,x2,y2){
 }
 
 function getZoomChange(e){
-    var p1 = e.changedTouches[0]
-    var p2 = e.changedTouches[1]
+    var p1 = e.touches[0]
+    var p2 = e.touches[1]
     var oldDistance = getDifferanceBetweenPoints(touchDict[p1.identifier].lastX,touchDict[p1.identifier].lastY,touchDict[p2.identifier].lastX,touchDict[p2.identifier].lastY)
     var newDistance = getDifferanceBetweenPoints(p1.clientX, p1.clientY, p2.clientX, p2.clientY)
 
@@ -1168,6 +1182,12 @@ function limitPan(){
     moveAllLines()
 }
 
+function searchWord(word){
+    openDictionary()
+    document.getElementById("dictionarySearch").value = word
+    searchDictionary()
+}
+
 function openDictionary(){
     document.getElementById("dictionary").style.display = "flex"
     document.getElementById("showDictionary").style.display = "none"
@@ -1312,6 +1332,14 @@ function constrainInputNumber(id){
     value = Math.max(min, value)
     value = Math.min(max, value)
     document.getElementById(id).value = value
+    switch(id){
+        case "startCountCustom":
+            localStorage.setItem("customStartCount", document.getElementById("startCountCustom").value)
+        break
+        case "goalCountCustom":
+            localStorage.setItem("customGoalCount", document.getElementById("goalCountCustom").value)
+        break
+    }
 }
 
 function boardToCanvas(){
@@ -1576,4 +1604,96 @@ function openMainMenu(){
     closeDictionary()
     tutorial = false
     lastTutorialQuestion = false
+}
+
+function scaleFont(textNode){
+    if(textNode.data.replace(/[\n ]/g,"").length==0){
+        return
+    }
+
+    var scaler = document.createElement("span")
+    scaler.classList.add("fontSizeScale")
+    if(textNode.parentNode.classList.contains("word")){
+        scaler.classList.add("fontScaleWord")   
+    }
+    scaler.innerHTML = textNode.data
+    textNode.parentNode.insertBefore(scaler, textNode)
+    textNode.remove()
+}
+
+function scaleFontUnder(elem){
+    var allText = textNodesUnder(elem)
+    for(var textNode of allText){
+        if(!textNode.parentNode.classList.contains("fontSizeScale") && !textNode.parentNode.classList.contains("popupBtnMultiSelect")){
+            scaleFont(textNode)
+        }
+    }
+}
+
+function scaleFontAllElems(){
+    var styleSheet = document.styleSheets[0]
+    fontSizeClass = styleSheet.cssRules[styleSheet.insertRule(".fontSizeScale{font-size:100%}")]
+    scaleFontUnder(document.body)
+    observer = new MutationObserver((e)=>{
+        for(var mutation of e){
+            scaleFontUnder(mutation.target)
+        }
+    })
+    observer.observe(document.body, {childList:true, subtree:true, characterData:true})
+}
+
+function increaseFontSize(){
+    currentFontSize = Number(fontSizeClass.style.fontSize.replaceAll("%",""))
+    currentFontSize += 5
+    if(currentFontSize >= 200){
+        return
+    }
+    fontSizeClass.style.fontSize = currentFontSize + "%"
+    localStorage.setItem("fontSize", currentFontSize)
+}
+
+function decreaseFontSize(){
+    currentFontSize = Number(fontSizeClass.style.fontSize.replaceAll("%",""))
+    currentFontSize -= 5
+    if(currentFontSize <= 80){
+        return
+    }
+    fontSizeClass.style.fontSize = currentFontSize + "%"
+    localStorage.setItem("fontSize", currentFontSize)
+}
+
+function initStorage(){
+    if(window.matchMedia('(display-mode: standalone)').matches){
+        navigator.storage.persist()
+    }
+    localStorage.setItem("notFirstLoad", "true")
+    localStorage.setItem("dialect", "rp")
+    localStorage.setItem("difficulty", "begginer")
+    localStorage.setItem("fontSize", "100")
+    localStorage.setItem("customStepNum", "mediumSteps")
+    localStorage.setItem("customStartCount", document.getElementById("startCountCustom").value)
+    localStorage.setItem("customGoalCount", document.getElementById("goalCountCustom").value)
+}
+
+function updateCustomCounts(){
+    localStorage.setItem("customStartCount", document.getElementById("startCountCustom").value)
+    localStorage.setItem("customGoalCount", document.getElementById("goalCountCustom").value)
+}
+
+function loadStorage(){
+    if(window.matchMedia('(display-mode: standalone)').matches){
+        navigator.storage.persist()
+    }
+    var dialect = localStorage.getItem("dialect")
+    if (dialect == "american" && !america){
+        window.location.href = "american.html"
+    }
+    if(dialect == "rp" && america){
+        window.location.href = "index.html"
+    }
+    selectDifficulty(localStorage.getItem("difficulty"))
+    selectStepNum(localStorage.getItem("customStepNum"))
+    document.getElementById("startCountCustom").value = Number(localStorage.getItem("customStartCount"))
+    document.getElementById("goalCountCustom").value = Number(localStorage.getItem("customGoalCount"))
+    fontSizeClass.style.fontSize = localStorage.getItem("fontSize") + "%"
 }

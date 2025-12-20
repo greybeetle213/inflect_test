@@ -32,6 +32,18 @@ const putInCache = async (request, response) => {
     const cache = await caches.open("v1");
     await cache.put(request, response);
 };
+
+const netFirst = async (event)=>{
+    try{
+        const responseFromNetwork = await fetch(event.request)
+        event.waitUntil(putInCache(event.request, responseFromNetwork.clone()));
+        return responseFromNetwork;
+    } catch (error) {
+        const responseFromCache = await caches.match(event.request);
+        return responseFromCache;
+    }
+}
+
 const cacheFirst = async (request, preloadResponsePromise, event) => {
     // First try to get the resource from the cache
     const responseFromCache = await caches.match(request);
@@ -102,11 +114,42 @@ self.addEventListener("install", (event) => {
 })
 
 self.addEventListener("fetch", (event) => {
-    event.respondWith(
-      cacheFirst(
-        event.request,
-        event.preloadResponse,
-        event,
-      )
-    );
+    var bigFiles = [
+        "/dict/extras.js",
+        "/dict/filteredConjs.json",
+        "/dict/ipaToOrth.json",
+        "/dict/ipaTree.json",
+        "/dict/orthToIpa.json",
+        "/dict/orthTree.json",
+        "/dict/wordList.json",
+
+        "/dict_US/extras.js",
+        "/dict_US/filteredConjs.json",
+        "/dict_US/ipaToOrth.json",
+        "/dict_US/ipaTree.json",
+        "/dict_US/orthToIpa.json",
+        "/dict_US/orthTree.json",
+        "/dict_US/wordList.json"
+    ]
+    var isBigFile = false
+    for(var path of bigFiles){
+        try{
+            if(event.request.indexOf(path)!=-1){
+                isBigFile = true
+            }
+        } catch(error) {
+
+        }
+    }
+    if(!isBigFile){
+        event.respondWith(netFirst(event))
+    }else{
+        event.respondWith(
+            cacheFirst(
+              event.request,
+              event.preloadResponse,
+              event,
+            )
+        );
+    }
   });
