@@ -33,16 +33,34 @@ const putInCache = async (request, response) => {
     await cache.put(request, response);
 };
 
-const netFirst = async (event)=>{
-    try{
-        const responseFromNetwork = await fetch(event.request)
-        event.waitUntil(putInCache(event.request, responseFromNetwork.clone()));
+const netFirst = async (request, preloadResponsePromise, event) => {
+    try {
+        const responseFromNetwork = await fetch(request);
+        // response may be used only once
+        // we need to save clone to put one copy in cache
+        // and serve second one
+        event.waitUntil(putInCache(request, responseFromNetwork.clone()));
         return responseFromNetwork;
     } catch (error) {
-        const responseFromCache = await caches.match(event.request);
+
+    }
+    // First try to get the resource from the cache
+    const responseFromCache = await caches.match(request);
+    if (responseFromCache) {
         return responseFromCache;
     }
-}
+
+    // Next try to use (and cache) the preloaded response, if it's there
+    const preloadResponse = await preloadResponsePromise;
+    if (preloadResponse) {
+        console.info("using preload response", preloadResponse);
+        event.waitUntil(putInCache(request, preloadResponse.clone()));
+        return preloadResponse;
+    }
+
+    // Next try to get the resource from the network
+    
+};
 
 const cacheFirst = async (request, preloadResponsePromise, event) => {
     // First try to get the resource from the cache
@@ -114,42 +132,22 @@ self.addEventListener("install", (event) => {
 })
 
 self.addEventListener("fetch", (event) => {
-    var bigFiles = [
-        "/dict/extras.js",
-        "/dict/filteredConjs.json",
-        "/dict/ipaToOrth.json",
-        "/dict/ipaTree.json",
-        "/dict/orthToIpa.json",
-        "/dict/orthTree.json",
-        "/dict/wordList.json",
-
-        "/dict_US/extras.js",
-        "/dict_US/filteredConjs.json",
-        "/dict_US/ipaToOrth.json",
-        "/dict_US/ipaTree.json",
-        "/dict_US/orthToIpa.json",
-        "/dict_US/orthTree.json",
-        "/dict_US/wordList.json"
-    ]
-    var isBigFile = false
-    for(var path of bigFiles){
-        try{
-            if(event.request.indexOf(path)!=-1){
-                isBigFile = true
-            }
-        } catch(error) {
-
-        }
-    }
-    if(!isBigFile){
-        event.respondWith(netFirst(event))
+    if(event.request && event.request.url.indexOf("dict")==-1){
+        event.respondWith(
+            netFirst(
+                event.request,
+                event.preloadResponse,
+                event
+            )
+        )
     }else{
         event.respondWith(
             cacheFirst(
-              event.request,
-              event.preloadResponse,
-              event,
+                event.request,
+                event.preloadResponse,
+                event
             )
         );
     }
-  });
+  }
+)

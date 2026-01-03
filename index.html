@@ -7,6 +7,7 @@
     <title>/ɪnflɛkt/</title>
     <script>america=false</script>
     <script src="load.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script> 
     <script src="dict/extras.js"></script>
     <script src="borowedCode.js"></script>
     <script src="makePuzzle.js"></script>
@@ -16,15 +17,17 @@
     <link rel=icon href="icons/favicon.png">
 </head>
 <body onload="onBodyLoad()">
-    <div id="mainMenu">
-        <h1>/ɪnflɛkt/</h1>
+    <div id="mainMenu" style="visibility: hidden;">
+        <h1 id="title">/ɪnflɛkt/</h1>
         <div id="difficultySelector" class="mainMenuMultiChoice">
             Difficulty:
             <br class="showOnMobile">
-            <button id="begginer" onclick="selectDifficulty('begginer')">Beginner</button>
-            <button id="easy" onclick="selectDifficulty('easy')">Easy</button>
-            <button id="medium" onclick="selectDifficulty('medium')">Medium</button>
-            <button id="hard" onclick="selectDifficulty('hard')">Hard</button>
+            <button id="lvl0" onclick="selectDifficulty('lvl0')">0</button>
+            <button id="lvl1" onclick="selectDifficulty('lvl1')">1</button>
+            <button id="lvl2" onclick="selectDifficulty('lvl2')">2</button>
+            <button id="lvl3" onclick="selectDifficulty('lvl3')">3</button>
+            <button id="lvl4" onclick="selectDifficulty('lvl4')">4</button>
+            <button id="lvl5" onclick="selectDifficulty('lvl5')">5</button>
             <button id="custom" onclick="selectDifficulty('custom')">Custom</button>
             <div id="customDificulty" style="display: none;">
                 <span class="numberInput">
@@ -49,8 +52,12 @@
             <button class="disabled" onclick="localStorage.setItem('dialect', 'american');window.location.href='american.html'">General American English</button>
         </div>
         <div>
-            <button id="playButton" class="menuButton" onclick="requestAnimationFrame(play)">Play!</button>
+            <button id="playButton" class="menuButton" onclick="playRandom()">Play</button>
+            <button id="playButtonDaily" class="menuButton" onclick="playDaily()">Daily</button>
             <button class="menuButton" onclick="startTutorial()">Tutorial</button>
+        </div>
+        <div>
+            <span class="dailyTimer">Daily puzzles reset in </span><span  class="dailyTimer" id="dailyTimer"></span>
         </div>
         <span id="progress"></span>
         <div class="showOnMobile" style="margin-top: 1em;">
@@ -151,7 +158,7 @@
                     </div>
                     <div id="mobileMenu" style="display: none;">
                         <hr>
-                        <button onclick="closeMobileMenu();replay()">New Puzzle</button>
+                        <button id="newPuzzleMobile" onclick="closeMobileMenu();replay()">New Puzzle</button>
                         <button onclick="openDictionary()">Open Dictionary</button>
                         <button onclick="backToMainMenu()">Back to Main Menu</button>
                     </div>
@@ -176,11 +183,20 @@
         <div id="shareMenu" style="display: none;">
             <div id="shareMenuStyler" class="canScroll">
                 <span id="shareToolBar" class="canScroll">
-                    <button id="copyButton" class="canScroll">Copy to Clipboard</button>
+                    <button id="shareImageButton" style="display: none;" onclick="shareBoard()">Share</button>
+                    <span id="copyButtons">
+                        <button id="copyButton" class="canScroll">Copy Image</button>
+                        <button id="copyLinkButton" class="canScroll">Copy Link</button>
+                    </span>
+                    <div class="mainMenuMultiChoice" id="shareTypeSelector">
+                        <button id="copySolution" onclick="changeShareType('solution')">Solution</button>
+                        <button id="copyPuzzle" onclick="changeShareType('puzzle')">Puzzle</button>
+                    </div>
                     <button class="iconButton fontSizeScale" class="canScroll" onclick="document.getElementById('shareMenu').style.display='none'">
                         <img class="canScroll" src="icons/close-large-line.svg" alt="">
                     </button>
                 </span>
+                <span id="puzzleLink"></span>
                 <div class="canScroll">
                     <img class="canScroll" id="sharePreview" src="" alt="">
                 </div>

@@ -1,3 +1,4 @@
+seededRandom = new Math.seedrandom(Date.now())
 function proccessDictFiles(){
     wordSet = new Set(wordList)
 
@@ -90,7 +91,7 @@ function getRandomFromKey(key, set, usedWordsSet){
 }
 
 function randomFromList(l){
-    return(l[Math.floor(Math.random()*l.length)])
+    return(l[Math.floor(seededRandom()*l.length)])
 }
 
 function randomFromSet(word){
@@ -110,40 +111,47 @@ class wordTree{
         this.roots = []
         this.activeWords = []
         switch(difficulty){
-            case "begginer":
+            case "0":
+                this.mergeChance = 0
+                this.splitChance = 0
+                this.maxIter = 2
+                this.startWordNum = 1
+                this.endWordNum = 1
+                break
+            case "1":
                 this.mergeChance = 0
                 this.splitChance = 0
                 this.maxIter = 2
                 this.startWordNum = 3
                 this.endWordNum = 1
                 break
-            case "easy":
+            case "2":
                 this.mergeChance = 0
                 this.splitChance = 0
                 this.maxIter = 2
                 this.startWordNum = 2
                 this.endWordNum = 1
                 break
-            case "medium":
+            case "3":
                 this.mergeChance = 0.1
                 this.splitChance = 0.5
                 this.maxIter = 10
                 this.startWordNum = 2
                 this.endWordNum = 1
                 break
-            case "hard":
+            case "4":
                 this.mergeChance = 0.1
                 this.splitChance = 0.5
                 this.maxIter = 50
                 this.startWordNum = 2
                 this.endWordNum = 2
                 break
-            case "harder":
+            case "5":
                 this.mergeChance = 0.1
                 this.splitChance = 0.5
                 this.maxIter = 100
-                this.startWordNum = 3
-                this.endWordNum = 4
+                this.startWordNum = 1
+                this.endWordNum = 3
                 break
         }
     }
@@ -156,10 +164,10 @@ class wordTree{
         this.createRandomWords(this.startWordNum)
         for(var i = 0; i < this.maxIter; i++){
             this.mutateAllWords()
-            if(this.activeWords.length < this.endWordNum || Math.random() < this.splitChance){
+            if(this.activeWords.length < this.endWordNum || seededRandom() < this.splitChance){
                 this.splitWords(1)
             }
-            if(this.activeWords.length > this.endWordNum && Math.random() < this.mergeChance){
+            if(this.activeWords.length > this.endWordNum && seededRandom() < this.mergeChance){
                 this.mergeWords(2)
             }else if(this.activeWords.length >= this.endWordNum + (this.maxIter - i)){
                 this.mergeWords(2)
@@ -569,6 +577,7 @@ function getBestPuzzle(difficulty, tries, startWordsCustom, endWordsCustom){
             score += 50
         }
         if(!goal.length){
+            tries ++
             continue
         }
         var wordLengthScore = goal[0].length**0.5

@@ -123,7 +123,7 @@ function shuffle(array) {//https://stackoverflow.com/questions/2450954/how-to-ra
     while (currentIndex != 0) {
     
         // Pick a remaining element...
-        let randomIndex = Math.floor(Math.random() * currentIndex);
+        let randomIndex = Math.floor(seededRandom() * currentIndex);
         currentIndex--;
     
         // And swap it with the current element.
@@ -183,9 +183,11 @@ async function copyCanvasContentsToClipboard(canvas) {
         // Write the data to the clipboard
         await navigator.clipboard.write(data);
     } catch (error) {
+        console.error(error)
         alert("There was an error. Just long press/right click the image and then hit copy. This only happens on some devices and I've spent way too long trying to fix it. If you know how to, please send help.")
     }
 }   
+
 
 function textNodesUnder(el) { //https://stackoverflow.com/questions/10730309/find-all-text-nodes-in-html-page
     const children = [] // Type: Node[]
@@ -195,4 +197,3 @@ function textNodesUnder(el) { //https://stackoverflow.com/questions/10730309/fin
     }
     return children
 }
-  
